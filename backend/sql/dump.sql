@@ -18,7 +18,7 @@ CREATE TABLE users (
 -- -----------------------------------------------------
 CREATE TABLE categories (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(255) NOT NULL             -- nom → name
+    name VARCHAR(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- -----------------------------------------------------
@@ -26,7 +26,7 @@ CREATE TABLE categories (
 -- -----------------------------------------------------
 CREATE TABLE challenges (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    title VARCHAR(255) NOT NULL,           -- titre → title
+    title VARCHAR(255) NOT NULL,
     description TEXT,
     user_id INT,
     category_id INT,
@@ -44,7 +44,7 @@ CREATE TABLE participations (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     challenge_id INT NOT NULL,
-    status ENUM('in_progress', 'validated', 'rejected') DEFAULT 'in_progress',  -- traductions
+    status ENUM('in_progress', 'validated', 'rejected') DEFAULT 'in_progress',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
         ON DELETE CASCADE ON UPDATE CASCADE,
@@ -72,7 +72,7 @@ CREATE TABLE comments (
 -- -----------------------------------------------------
 CREATE TABLE messages (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,                  -- sender_id renommé → user_id
+    user_id INT NOT NULL,
     content TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
