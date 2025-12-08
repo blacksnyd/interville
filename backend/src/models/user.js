@@ -9,19 +9,16 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // Un user appartient à une seule ville
       User.belongsTo(models.City, {
         foreignKey: 'cityId',
         as: 'city'
       });
 
-      // Un user appartient à une seule classe
       User.belongsTo(models.Class, {
         foreignKey: 'classId',
         as: 'class'
       });
 
-      // Un user appartient à un seul rôle
       User.belongsTo(models.Role, {
         foreignKey: 'roleId',
         as: 'role'
