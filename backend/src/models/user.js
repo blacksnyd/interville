@@ -1,7 +1,6 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -10,30 +9,81 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      // Un user appartient à une seule ville
       User.belongsTo(models.City, {
         foreignKey: 'cityId',
         as: 'city'
       });
+
+      // Un user appartient à une seule classe
       User.belongsTo(models.Class, {
         foreignKey: 'classId',
         as: 'class'
       });
+
+      // Un user appartient à un seul rôle
       User.belongsTo(models.Role, {
         foreignKey: 'roleId',
         as: 'role'
       });
     }
   }
-  User.init({
-    username: DataTypes.STRING,
-    password: DataTypes.STRING,
-    email: DataTypes.STRING,
-    cityId: DataTypes.INTEGER,
-    roleId: DataTypes.INTEGER,
-    classId: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'User',
-  });
+
+  User.init(
+    {
+      username: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: { notEmpty: true }
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: { notEmpty: true }
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+        validate: {
+          notEmpty: true,
+          isEmail: true
+        }
+      },
+      cityId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Cities',
+          key: 'id'
+        }
+      },
+      roleId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Roles',
+          key: 'id'
+        }
+      },
+      classId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: 'Classes',
+          key: 'id'
+        }
+      }
+    },
+    {
+      sequelize,
+      modelName: 'User',
+      tableName: 'Users',
+      timestamps: true,
+      createdAt: 'createdAt',
+      updatedAt: 'updatedAt'
+    }
+  );
+
   return User;
 };
