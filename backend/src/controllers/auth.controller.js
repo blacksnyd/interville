@@ -1,29 +1,8 @@
-const { User } = require('../models');
-const bcrypt = require('bcrypt');
-const {registerValidation} = require('../middlewares/validators/auth.validator');
+const authService = require('../services/auth.service');
 
 exports.register = async (req, res) => {
-  const errors = registerValidation(req);
-  if(!errors.isEmpty()) {
-    return res.status(400).json({
-      success: false,
-      errors: errors.array()
-    })
-  }
   try {
-    const { username, password, email, city, class: userClass } = req.body;
-    const hash = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      username,
-      password: hash,
-      email,
-      city_id:  parseInt(city),
-      class_id: parseInt(userClass),
-    });
-
-
-
+    const user = await authService.register(req.body);
     res.status(201).json({
       success: true,
       message: "Utilisateur créé avec succès",
