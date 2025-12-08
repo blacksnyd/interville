@@ -1,5 +1,8 @@
 const { User } = require('../models');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
 
 
 async function register({username, password, email, city, class: userClass}) {
@@ -15,4 +18,12 @@ async function register({username, password, email, city, class: userClass}) {
   return user;
 }
 
-module.exports = {register};
+function generateToken(user) {
+  return jwt.sign(
+    {sub: user.id},
+    process.env.JWT_TOKEN,
+    {expiresIn: '3h'}
+  )
+}
+
+module.exports = {register, generateToken};
