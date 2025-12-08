@@ -5,22 +5,21 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
      * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
+     * Cette méthode est appelée automatiquement par `models/index`.
      */
     static associate(models) {
       User.belongsTo(models.City, {
-        foreignKey: 'cityId',
+        foreignKey: 'city_id',
         as: 'city'
       });
 
       User.belongsTo(models.Class, {
-        foreignKey: 'classId',
+        foreignKey: 'class_id',
         as: 'class'
       });
 
       User.belongsTo(models.Role, {
-        foreignKey: 'roleId',
+        foreignKey: 'role_id',
         as: 'role'
       });
     }
@@ -47,27 +46,28 @@ module.exports = (sequelize, DataTypes) => {
           isEmail: true
         }
       },
-      cityId: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'Cities',
-          key: 'id'
-        }
-      },
-      roleId: {
+      city_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'Roles',
+          model: 'cities',
           key: 'id'
         }
       },
-      classId: {
+      role_id: {
         type: DataTypes.INTEGER,
-        allowNull: true,
+        allowNull: false,
+        defaultValue: 1,
         references: {
-          model: 'Classes',
+          model: 'roles',
+          key: 'id'
+        }
+      },
+      class_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'classes',
           key: 'id'
         }
       }
@@ -75,10 +75,10 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'User',
-      tableName: 'Users',
+      tableName: 'users',
       timestamps: true,
-      createdAt: 'createdAt',
-      updatedAt: 'updatedAt'
+      createdAt: 'created_at',
+      updatedAt: 'updated_at'
     }
   );
 
