@@ -1,19 +1,101 @@
 .app-container {
   display: flex;
   min-height: 100vh;
+  position: relative;
+}
+
+.mobile-menu-btn {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
+  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
+  color: white;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
+}
+
+.mobile-menu-btn:active {
+  transform: scale(0.95);
 }
 
 .main-content {
   flex: 1;
-  margin-left: 240px;
-  background-color: #ffffff;
+  width: calc(100% - 80px);
+  margin-left: 80px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   min-height: 100vh;
-  padding: 0;
+  padding: 2rem;
+  position: relative;
 }
 
-@media (max-width: 768px) {
+/* Responsive - Mobile */
+@media (max-width: 1023px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
+
   .main-content {
     margin-left: 0;
+    padding: 1rem;
+    padding-top: 4.5rem;
   }
 }
 
+/* Responsive - Desktop */
+@media (min-width: 1024px) {
+  .mobile-menu-btn {
+    display: none;
+  }
+
+  /* Sur desktop, le main-content laisse 80px pour la sidebar par défaut */
+  .main-content {
+    width: calc(100% - 80px);
+    margin-left: 80px;
+  }
+}
+
+/* Responsive - Tablet */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .main-content {
+    margin-left: 0;
+    padding: 1.5rem;
+    padding-top: 4.5rem;
+  }
+}
+
+/* Amélioration du scroll */
+.main-content {
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: rgba(147, 51, 234, 0.2);
+  border-radius: 4px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 51, 234, 0.3);
+}
