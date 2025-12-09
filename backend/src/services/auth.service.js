@@ -1,24 +1,49 @@
 const { User } = require('../models');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
+const emailTransporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+      user: 'kenzodouchet33@gmail.com',
+      pass: 'aaty kpqh nmdj nmpv'
+  }
+});
 
-
-async function register({username, password, email, city, class: userClass}) {
+async function register({ username, password, email, city, class: userClass }) {
   const hash = await bcrypt.hash(password, 10);
   console.log(username, password, email, city, userClass);
   const user = await User.create({
     username,
     password: hash,
     email,
-    city_id:  parseInt(city),
-    class_id: parseInt(userClass),
+    city_id: parseInt(city, 10),
+    class_id: parseInt(userClass, 10),
   });
-  return user;
+
+  const emailToken = jwt.sign(
+    { email: user.email },
+    process.env.JWT_TOKEN,
+    { expiresIn: '1h' }
+  );
+
+  const verificationUrl = `http://localhost:5000/verify-email?token=${emailToken}`;
+
+  const mailOptions = {
+    from: "kenzodouchet33@gmail.com",
+    to: user.email,
+    subject: 'Verify Your Email',
+    html: `Please click the following link to verify your email: <a href="${verificationUrl}">${verificationUrl}</a>`
+  };
+
+  await emailTransporter.sendMail(mailOptions);
+
+  return { user, verificationUrl };
 }
 
-async function login({email, password}) {
-  const user = await User.findOne({where: {email}})
+async function login({ email, password }) {
+  const user = await User.findOne({ where: { email } });
 
   if (!user) return null;
 
@@ -29,10 +54,10 @@ async function login({email, password}) {
 
 function generateToken(user) {
   return jwt.sign(
-    {sub: user.id},
+    { sub: user.id },
     process.env.JWT_TOKEN,
-    {expiresIn: '3h'}
-  )
+    { expiresIn: '3h' }
+  );
 }
 
-module.exports = {register, login ,generateToken};
+module.exports = { register, login, generateToken };
