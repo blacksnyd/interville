@@ -70,6 +70,10 @@ module.exports = (sequelize, DataTypes) => {
           model: 'classes',
           key: 'id'
         }
+      },
+      is_verified: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       }
     },
     {

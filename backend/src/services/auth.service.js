@@ -28,7 +28,10 @@ async function register({ username, password, email, city, class: userClass }) {
     { expiresIn: '1h' }
   );
 
-  const verificationUrl = `http://localhost:5000/verify-email?token=${emailToken}`;
+  console.log("TOKEN ATTENDU :", emailToken);  // seulement pour debug
+
+
+  const verificationUrl = `http://localhost:5000/api/auth/verify-email?token=${emailToken}`;
 
   const mailOptions = {
     from: "kenzodouchet33@gmail.com",
