@@ -1,9 +1,12 @@
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutGrid, Trophy, MessageSquare, User, Shield, LogOut } from 'lucide-react';
+import { LayoutGrid, Trophy, MessageSquare, User, Shield, LogOut, X } from 'lucide-react';
 import './Sidebar.css';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
 
   const menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
@@ -20,40 +23,101 @@ const Sidebar = () => {
     return location.pathname.startsWith(path);
   };
 
-  return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <h1 className="sidebar-logo">Inter-Ville</h1>
-        <p className="sidebar-subtitle">CDPI La Plateforme</p>
-      </div>
-      
-      <nav className="sidebar-nav">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={`sidebar-item ${isActive(item.path) ? 'active' : ''}`}
-            >
-              <span className="sidebar-icon">
-                <Icon size={20} />
-              </span>
-              <span className="sidebar-label">{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
+  // Gérer l'expansion au hover sur desktop et détecter mobile
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) {
+        setIsExpanded(false);
+      }
+    };
+    
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-      <div className="sidebar-footer">
-        <Link to="/login" className="sidebar-item sidebar-logout">
-          <span className="sidebar-icon">
-            <LogOut size={20} />
-          </span>
-          <span className="sidebar-label">Déconnexion</span>
-        </Link>
-      </div>
-    </aside>
+  const handleItemClick = () => {
+    // Fermer la sidebar sur mobile après clic
+    if (isMobile && onClose) {
+      onClose();
+    }
+  };
+
+  const handleMouseEnter = () => {
+    if (!isMobile) {
+      setIsExpanded(true);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isMobile) {
+      setIsExpanded(false);
+    }
+  };
+
+  return (
+    <>
+      {/* Overlay pour mobile */}
+      {isOpen && isMobile && <div className="sidebar-overlay" onClick={onClose} />}
+      
+      <aside 
+        className={`sidebar ${isMobile ? (isOpen ? 'open' : '') : 'open'} ${isExpanded ? 'expanded' : ''}`}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        <div className="sidebar-header">
+          <div className="sidebar-logo-container">
+            <div className="sidebar-logo-icon">IV</div>
+            <div className="sidebar-logo-text">
+              <h1 className="sidebar-logo">Inter-Ville</h1>
+              <p className="sidebar-subtitle">CDPI La Plateforme</p>
+            </div>
+          </div>
+          {isMobile && (
+            <button className="sidebar-close-btn" onClick={onClose}>
+              <X size={20} />
+            </button>
+          )}
+        </div>
+        
+        <nav className="sidebar-nav">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`sidebar-item ${isActive(item.path) ? 'active' : ''}`}
+                onClick={handleItemClick}
+                title={item.label}
+              >
+                <span className="sidebar-icon">
+                  <Icon size={22} />
+                </span>
+                <span className="sidebar-label">{item.label}</span>
+                {isActive(item.path) && <span className="sidebar-indicator" />}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="sidebar-footer">
+          <Link 
+            to="/login" 
+            className="sidebar-item sidebar-logout"
+            onClick={handleItemClick}
+            title="Déconnexion"
+          >
+            <span className="sidebar-icon">
+              <LogOut size={22} />
+            </span>
+            <span className="sidebar-label">Déconnexion</span>
+          </Link>
+        </div>
+      </aside>
+    </>
   );
 };
 
