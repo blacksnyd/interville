@@ -1,4 +1,5 @@
 const authService = require('../services/auth.service');
+const {User} = require('../models');
 
 exports.register = async (req, res) => {
   try {
@@ -54,4 +55,13 @@ exports.login = async (req,res) => {
       data: null
     });
   }
+}
+
+exports.protected = async (req,res) => {
+  const user = await User.findByPk(req.user.sub);
+  res.status(200).json({
+    success: true,
+    message: "test user data",
+    data: user.toJSON()
+  })
 }
