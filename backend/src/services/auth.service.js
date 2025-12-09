@@ -18,6 +18,16 @@ async function register({username, password, email, city, class: userClass}) {
   return user;
 }
 
+async function login({email, password}) {
+  const user = await User.findOne({where: {email}})
+
+  if (!user) return null;
+
+  const logged = await bcrypt.compare(password, user.password);
+
+  return logged ? user : null;
+}
+
 function generateToken(user) {
   return jwt.sign(
     {sub: user.id},
@@ -26,4 +36,4 @@ function generateToken(user) {
   )
 }
 
-module.exports = {register, generateToken};
+module.exports = {register, login ,generateToken};

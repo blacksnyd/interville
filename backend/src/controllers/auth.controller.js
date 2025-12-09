@@ -29,5 +29,29 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req,res) => {
-  console.log("login endpoint");
+  try {
+    const user = await authService.login(req.body)
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Email ou mot de passe incorrect",
+        data: null
+      });
+    }
+
+    const token = authService.generateToken(user);
+
+    res.status(200).json({
+      success: true,
+      message: "Connexion réussie",
+      data: token
+    })
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+      data: null
+    });
+  }
 }
