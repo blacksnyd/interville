@@ -23,7 +23,7 @@ async function register({ username, password, email, city, class: userClass }) {
   });
 
   const emailToken = jwt.sign(
-    { email: user.email },
+    { email: user.email},
     process.env.JWT_TOKEN,
     { expiresIn: '2m' }
   );
@@ -55,7 +55,7 @@ async function login({ email, password }) {
 
 function generateToken(user) {
   return jwt.sign(
-    { sub: user.id },
+    { sub: user.id, role: user.role_id},
     process.env.JWT_TOKEN,
     { expiresIn: '3h' }
   );
