@@ -28,16 +28,14 @@ async function register({ username, password, email, city, class: userClass }) {
     { expiresIn: '2m' }
   );
 
-  console.log("TOKEN ATTENDU :", emailToken);
-
 
   const verificationUrl = `http://localhost:5000/api/auth/verify-email?token=${emailToken}`;
 
   const mailOptions = {
-    from: "kenzodouchet33@gmail.com",
+    from: process.env.NODEMAILER_USER,
     to: user.email,
-    subject: 'Verify Your Email',
-    html: `Please click the following link to verify your email: <a href="${verificationUrl}">${verificationUrl}</a>`
+    subject: 'Véfication de l\'adresse e-mail',
+    html: `Merci de cliquer ici pour valider votre e-mail: <a href="${verificationUrl}">${verificationUrl}</a>`
   };
 
   await emailTransporter.sendMail(mailOptions);
