@@ -69,33 +69,48 @@ exports.protected = async (req,res) => {
   })
 }
 exports.verifyEmail = async (req, res) => {
-  const token = req.query.token;
-
-  console.log("TOKEN REÇU :", token);
-
-  if (!token) {
-    return res.status(400).json({ message: 'Token manquant.' });
-  }
-
   try {
-    const payload = jwt.verify(token, process.env.JWT_TOKEN);
-    const user = await User.findOne({ where: { email: payload.email } });
+    const token = req.query.token;
 
-    if (!user) {
-      return res.status(404).json({ message: 'Utilisateur introuvable.' });
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token manquant.'
+      });
     }
 
-    if (user.is_verified) {
-      return res.status(400).json({ message: 'Déjà vérifié.' });
+    const user = await authService.verificationEmail(token);
+
+    return res.status(200).json({
+      success: true,
+      message: "Email vérifié avec succès",
+      data: {
+        id: user.id,
+        email: user.email,
+        is_verified: user.is_verified
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+
+    if (error.name === 'TokenExpiredError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Token expiré.'
+      });
     }
 
-    user.is_verified = true
+    if (error.name === 'JsonWebTokenError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Token invalide.'
+      });
+    }
 
-    await user.save();
-
-    res.json({ message: 'Email vérifié avec succès.' });
-  } catch (e) {
-    console.error(e);
-    return res.status(400).json({ message: 'Token invalide ou expiré.' });
+    return res.status(500).json({
+      success: false,
+      message: 'Erreur du serveur.'
+    });
   }
 };
