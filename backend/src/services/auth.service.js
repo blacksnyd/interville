@@ -61,7 +61,7 @@ function generateToken(user) {
   );
 }
 
-async function verificationEmail(token) {
+async function verifyEmail(token) {
   const payload = jwt.verify(token, process.env.JWT_TOKEN);
 
   const user = await User.findOne({ where: { email: payload.email } });
@@ -80,4 +80,4 @@ async function verificationEmail(token) {
 }
 
 
-module.exports = { register, login, generateToken, verificationEmail };
+module.exports = { register, login, generateToken, verifyEmail };

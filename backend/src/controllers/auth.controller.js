@@ -79,7 +79,7 @@ exports.verifyEmail = async (req, res) => {
       });
     }
 
-    const user = await authService.verificationEmail(token);
+    const user = await authService.verifyEmail(token);
 
     return res.status(200).json({
       success: true,

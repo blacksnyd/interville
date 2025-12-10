@@ -15,7 +15,6 @@ module.exports = (req, res, next) => {
 
   try {
     const payload = jwt.verify(token, process.env.JWT_TOKEN)
-    console.log(payload);
     req.user = payload;
     return next();
   } catch (error) {
