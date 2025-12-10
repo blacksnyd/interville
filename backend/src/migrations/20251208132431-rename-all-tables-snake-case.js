@@ -3,45 +3,69 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
+
+    // Utilitaire pour renommer sécuritairement
+    const safeRename = async (table, from, to) => {
+      const desc = await queryInterface.describeTable(table);
+      if (desc[from]) {
+        await queryInterface.renameColumn(table, from, to);
+      }
+    };
+
+    // Cities
     await queryInterface.renameTable('Cities', 'cities');
-    await queryInterface.renameColumn('cities', 'createdAt', 'created_at');
-    await queryInterface.renameColumn('cities', 'updatedAt', 'updated_at');
+    await safeRename('cities', 'createdAt', 'created_at');
+    await safeRename('cities', 'updatedAt', 'updated_at');
 
+    // Classes
     await queryInterface.renameTable('Classes', 'classes');
-    await queryInterface.renameColumn('classes', 'createdAt', 'created_at');
-    await queryInterface.renameColumn('classes', 'updatedAt', 'updated_at');
+    await safeRename('classes', 'createdAt', 'created_at');
+    await safeRename('classes', 'updatedAt', 'updated_at');
 
+    // Roles
     await queryInterface.renameTable('Roles', 'roles');
-    await queryInterface.renameColumn('roles', 'createdAt', 'created_at');
-    await queryInterface.renameColumn('roles', 'updatedAt', 'updated_at');
+    await safeRename('roles', 'createdAt', 'created_at');
+    await safeRename('roles', 'updatedAt', 'updated_at');
 
+    // Users
     await queryInterface.renameTable('Users', 'users');
-    await queryInterface.renameColumn('users', 'createdAt', 'created_at');
-    await queryInterface.renameColumn('users', 'updatedAt', 'updated_at');
-    await queryInterface.renameColumn('users', 'cityId', 'city_id');
-    await queryInterface.renameColumn('users', 'roleId', 'role_id');
-    await queryInterface.renameColumn('users', 'classId', 'class_id');
+    await safeRename('users', 'createdAt', 'created_at');
+    await safeRename('users', 'updatedAt', 'updated_at');
+    await safeRename('users', 'cityId', 'city_id');
+    await safeRename('users', 'roleId', 'role_id');
+    await safeRename('users', 'classId', 'class_id');
   },
 
   async down(queryInterface, Sequelize) {
-    // Revenir en arrière : snake_case → PascalCase / camelCase
-    await queryInterface.renameColumn('users', 'class_id', 'classId');
-    await queryInterface.renameColumn('users', 'role_id', 'roleId');
-    await queryInterface.renameColumn('users', 'city_id', 'cityId');
-    await queryInterface.renameColumn('users', 'updated_at', 'updatedAt');
-    await queryInterface.renameColumn('users', 'created_at', 'createdAt');
+
+    const safeRename = async (table, from, to) => {
+      const desc = await queryInterface.describeTable(table);
+      if (desc[from]) {
+        await queryInterface.renameColumn(table, from, to);
+      }
+    };
+
+    // Users
+    await safeRename('users', 'class_id', 'classId');
+    await safeRename('users', 'role_id', 'roleId');
+    await safeRename('users', 'city_id', 'cityId');
+    await safeRename('users', 'updated_at', 'updatedAt');
+    await safeRename('users', 'created_at', 'createdAt');
     await queryInterface.renameTable('users', 'Users');
 
-    await queryInterface.renameColumn('roles', 'updated_at', 'updatedAt');
-    await queryInterface.renameColumn('roles', 'created_at', 'createdAt');
+    // Roles
+    await safeRename('roles', 'updated_at', 'updatedAt');
+    await safeRename('roles', 'created_at', 'createdAt');
     await queryInterface.renameTable('roles', 'Roles');
 
-    await queryInterface.renameColumn('classes', 'updated_at', 'updatedAt');
-    await queryInterface.renameColumn('classes', 'created_at', 'createdAt');
+    // Classes
+    await safeRename('classes', 'updated_at', 'updatedAt');
+    await safeRename('classes', 'created_at', 'createdAt');
     await queryInterface.renameTable('classes', 'Classes');
 
-    await queryInterface.renameColumn('cities', 'updated_at', 'updatedAt');
-    await queryInterface.renameColumn('cities', 'created_at', 'createdAt');
+    // Cities
+    await safeRename('cities', 'updated_at', 'updatedAt');
+    await safeRename('cities', 'created_at', 'createdAt');
     await queryInterface.renameTable('cities', 'Cities');
   }
 };

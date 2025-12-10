@@ -9,5 +9,6 @@ const authenticate = require('../middlewares/auth');
 router.post('/register', registerValidation, validateRegister, authController.register);
 router.post('/login', authController.login);
 router.get('/protected', authenticate, authController.protected);
+router.get('/verify-email', authController.verifyEmail)
 
 module.exports = router;
