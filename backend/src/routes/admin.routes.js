@@ -1,11 +1,12 @@
 const { Router } = require('express');
 const router =  Router();
 
-const authenticate = require('../middlewares/auth');
-const admin = require('../middlewares/admin');
+const adminController = require('../controllers/admin.controller');
 
-router.get('/test', authenticate, admin,(req,res) => {
-  res.send("page admin");
-})
+const authMiddleware = require('../middlewares/auth');
+const adminMiddleware = require('../middlewares/admin');
+
+router.get('/users', authMiddleware, adminMiddleware, adminController.all);
+router.patch('/users/:id', authMiddleware, adminMiddleware, adminController.validation);
 
 module.exports = router;
