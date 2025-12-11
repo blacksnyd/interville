@@ -19,9 +19,9 @@ exports.registerValidation = [
     }),
 
   body('city')
-    .notEmpty().withMessage("city_id est requis")
+    .notEmpty().withMessage("La ville est requis")
     .bail()
-    .isInt().withMessage('city_id doit être un entier')
+    .isInt().withMessage('l\'ID doit être un entier')
     .bail()
     .toInt()
     .custom(async (value) => {
@@ -33,9 +33,9 @@ exports.registerValidation = [
     }),
 
   body('class')
-    .notEmpty().withMessage("class_id est requis")
+    .notEmpty().withMessage("La promo est requis")
     .bail()
-    .isInt().withMessage('class_id doit être un entier')
+    .isInt().withMessage('l\'ID doit être un entier')
     .bail()
     .toInt()
     .custom(async (value) => {
