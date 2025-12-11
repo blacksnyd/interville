@@ -1,11 +1,20 @@
-//  vérifie si l'utilisateur est admin
-module.exports = (req, res, next) => {
-  // req.user doit être défini par un middleware d'authentification précédent
-  if (!req.user || req.user.role !== 'admin') {
-    return res.status(403).json({
+const { Role } = require('../../models');
+
+module.exports = async (req, res, next) => {
+  try {
+
+    const role = await Role.findOne({ where: { id: req.user.role } });
+    if (!role || role.name !== "admin") {
+      return res.status(401).json({
+        success: false,
+        message: "Vous devez être administrateur"
+      });
+    }
+    next();
+  } catch (error) {
+    return res.status(500).json({
       success: false,
-      message: "Accès réservé aux administrateurs."
+      message: "Erreur serveur"
     });
   }
-  next();
 };
