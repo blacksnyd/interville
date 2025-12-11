@@ -1,17 +1,22 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Users, Mail, Lock } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import './Auth.css';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const { login, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     passwordConfirm: '',
-    pseudo: '',
-    ville: '',
-    promotion: ''
+    username: '',
+    city: '',
+    class: ''
   });
 
   const handleChange = (e) => {
@@ -19,6 +24,55 @@ const Login = () => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    setError(''); // Effacer l'erreur quand l'utilisateur tape
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        // Connexion
+        await login({
+          email: formData.email,
+          password: formData.password
+        });
+        navigate('/dashboard');
+      } else {
+        // Inscription
+        // Validation côté client
+        if (formData.password !== formData.passwordConfirm) {
+          setError('Les mots de passe ne correspondent pas');
+          setLoading(false);
+          return;
+        }
+
+        if (!formData.email.endsWith('@laplateforme.io')) {
+          setError('Seuls les emails @laplateforme.io sont autorisés');
+          setLoading(false);
+          return;
+        }
+
+        await register({
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          city: formData.city,
+          class: formData.class
+        });
+        
+        // Après l'inscription, afficher un message de succès
+        setError('');
+        alert('Inscription réussie ! Vérifiez votre email pour valider votre compte.');
+        setIsLogin(true); // Basculer vers le formulaire de connexion
+      }
+    } catch (err) {
+      setError(err.message || 'Une erreur est survenue');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -50,8 +104,21 @@ const Login = () => {
             </button>
           </div>
 
+          {error && (
+            <div style={{
+              padding: '0.75rem',
+              marginBottom: '1rem',
+              backgroundColor: '#fee2e2',
+              color: '#dc2626',
+              borderRadius: '8px',
+              fontSize: '0.875rem'
+            }}>
+              {error}
+            </div>
+          )}
+
           {isLogin ? (
-            <form className="auth-form">
+            <form className="auth-form" onSubmit={handleSubmit}>
               <div className="input-group">
                 <label className="input-label">Email professionnel</label>
                 <div className="input-wrapper">
@@ -63,6 +130,7 @@ const Login = () => {
                     placeholder="prenom.nom@laplateforme.io"
                     value={formData.email}
                     onChange={handleChange}
+                    required
                   />
                 </div>
               </div>
@@ -77,56 +145,64 @@ const Login = () => {
                     className="input-field"
                     value={formData.password}
                     onChange={handleChange}
+                    required
                   />
                 </div>
               </div>
 
-              <Link to="/dashboard" className="btn btn-primary auth-submit">
-                Se connecter
-              </Link>
+              <button 
+                type="submit" 
+                className="btn btn-primary auth-submit"
+                disabled={loading}
+              >
+                {loading ? 'Connexion...' : 'Se connecter'}
+              </button>
             </form>
           ) : (
-            <form className="auth-form">
+            <form className="auth-form" onSubmit={handleSubmit}>
               <div className="input-group">
                 <label className="input-label">Pseudo</label>
                 <input
                   type="text"
-                  name="pseudo"
+                  name="username"
                   className="input-field"
                   placeholder="Votre pseudo"
-                  value={formData.pseudo}
+                  value={formData.username}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
               <div className="input-group">
                 <label className="input-label">Ville</label>
                 <select
-                  name="ville"
+                  name="city"
                   className="input-field"
-                  value={formData.ville}
+                  value={formData.city}
                   onChange={handleChange}
+                  required
                 >
-                  <option>Sélectionner votre ville</option>
-                  <option>Marseille</option>
-                  <option>Nice</option>
-                  <option>Aix-en-Provence</option>
-                  <option>Paris</option>
+                  <option value="">Sélectionner votre ville</option>
+                  <option value="2">Marseille</option>
+                  <option value="4">Nice</option>
+                  <option value="3">Aix-en-Provence</option>
+                  <option value="1">Paris</option>
                 </select>
               </div>
 
               <div className="input-group">
                 <label className="input-label">Promotion</label>
                 <select
-                  name="promotion"
+                  name="class"
                   className="input-field"
-                  value={formData.promotion}
+                  value={formData.class}
                   onChange={handleChange}
+                  required
                 >
-                  <option>Sélectionner votre promotion</option>
-                  <option>Promo 2024</option>
-                  <option>Promo 2025</option>
-                  <option>Promo 2026</option>
+                  <option disabled>Sélectionner votre promotion</option>
+                  <option value="1">Promo 2024</option>
+                  <option value="2">Promo 2025</option>
+                  <option value="3">Promo 2026</option>
                 </select>
               </div>
 
@@ -141,6 +217,7 @@ const Login = () => {
                     placeholder="prenom.nom@laplateforme.io"
                     value={formData.email}
                     onChange={handleChange}
+                    required
                   />
                 </div>
               </div>
@@ -155,12 +232,14 @@ const Login = () => {
                     className="input-field"
                     value={formData.password}
                     onChange={handleChange}
+                    required
+                    minLength={6}
                   />
                 </div>
               </div>
 
               <div className="input-group">
-                <label className="input-label">Mot de passe</label>
+                <label className="input-label">Confirmer le mot de passe</label>
                 <div className="input-wrapper">
                   <Lock size={20} className="input-icon" />
                   <input
@@ -169,13 +248,18 @@ const Login = () => {
                     className="input-field"
                     value={formData.passwordConfirm}
                     onChange={handleChange}
+                    required
                   />
                 </div>
               </div>
 
-              <Link to="/dashboard" className="btn btn-primary auth-submit">
-                S'inscrire
-              </Link>
+              <button 
+                type="submit" 
+                className="btn btn-primary auth-submit"
+                disabled={loading}
+              >
+                {loading ? 'Inscription...' : 'S\'inscrire'}
+              </button>
             </form>
           )}
         </div>

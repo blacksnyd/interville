@@ -1,9 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutGrid, Trophy, MessageSquare, User, Shield, LogOut } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
   const location = useLocation();
+  const { logout } = useAuth();
 
   const menuItems = [
     { path: '/dashboard', label: 'Dashboard', icon: LayoutGrid },
@@ -54,16 +56,31 @@ const Sidebar = ({ isOpen = false, onClose = () => {} }) => {
       </nav>
 
       <div className="sidebar-footer">
-        <Link 
-          to="/login" 
+        <button 
           className="sidebar-item sidebar-logout"
-          onClick={handleLinkClick}
+          onClick={() => {
+            handleLinkClick();
+            logout();
+          }}
+          style={{ 
+            background: 'none', 
+            border: 'none', 
+            width: '100%', 
+            textAlign: 'left',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+            padding: '0.875rem 1.5rem',
+            color: 'inherit',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}
         >
           <span className="sidebar-icon">
             <LogOut size={20} />
           </span>
           <span className="sidebar-label">Déconnexion</span>
-        </Link>
+        </button>
       </div>
     </aside>
   );
