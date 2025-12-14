@@ -29,7 +29,8 @@ async function register({ username, password, email, city, class: userClass }) {
   );
 
 
-  const verificationUrl = `http://localhost:5000/api/auth/verify-email?token=${emailToken}`;
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const verificationUrl = `${frontendUrl}/verify-email?token=${emailToken}`;
 
   const mailOptions = {
     from: process.env.NODEMAILER_USER,

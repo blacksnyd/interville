@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Calendar, Trophy, Award, MessageSquare, User, Lock } from 'lucide-react';
+import { MapPin, Calendar, Trophy, Award, MessageSquare, User, Lock, CheckCircle, XCircle, Mail } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 import './Profil.css';
 
 const Profil = () => {
+  const { user } = useAuth();
   const handleEditProfile = () => {
     console.log('Modifier le profil');
   };
@@ -59,16 +61,59 @@ const Profil = () => {
             <div className="user-avatar">
               <User size={40} style={{ color: 'var(--primary-color)' }} />
             </div>
-            <h2 className="user-name">Alice Martin</h2>
-            <p className="user-email">alice.martin@laplateforme.io</p>
+            <h2 className="user-name">{user?.username || 'Utilisateur'}</h2>
+            <p className="user-email">{user?.email || ''}</p>
+            
+            {/* Statuts de vérification et validation */}
+            <div style={{ 
+              marginBottom: '1rem', 
+              padding: '0.75rem', 
+              backgroundColor: '#f3f4f6', 
+              borderRadius: '8px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.5rem'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem',
+                color: user?.is_verified ? '#10b981' : '#ef4444'
+              }}>
+                {user?.is_verified ? (
+                  <CheckCircle size={18} />
+                ) : (
+                  <XCircle size={18} />
+                )}
+                <span style={{ fontSize: '0.875rem' }}>
+                  Email {user?.is_verified ? 'vérifié' : 'non vérifié'}
+                </span>
+              </div>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem',
+                color: user?.is_validated ? '#10b981' : '#f59e0b'
+              }}>
+                {user?.is_validated ? (
+                  <CheckCircle size={18} />
+                ) : (
+                  <Mail size={18} />
+                )}
+                <span style={{ fontSize: '0.875rem' }}>
+                  Compte {user?.is_validated ? 'validé' : 'en attente de validation'}
+                </span>
+              </div>
+            </div>
+
             <div className="user-details">
               <div className="user-detail-item">
                 <MapPin size={20} />
-                <span>Marseille</span>
+                <span>{user?.city?.name || 'Non renseigné'}</span>
               </div>
               <div className="user-detail-item">
                 <Calendar size={20} />
-                <span>Promo 2024</span>
+                <span>{user?.class?.name || 'Non renseigné'}</span>
               </div>
               <div className="user-detail-item">
                 <Trophy size={20} />

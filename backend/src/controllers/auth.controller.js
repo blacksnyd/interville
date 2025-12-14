@@ -1,5 +1,5 @@
 const authService = require('../services/auth.service');
-const {User} = require('../models');
+const {User, City, Class, Role} = require('../models');
 const jwt = require('jsonwebtoken');
 
 
@@ -61,7 +61,13 @@ exports.login = async (req,res) => {
 }
 
 exports.protected = async (req,res) => {
-  const user = await User.findByPk(req.user.sub);
+  const user = await User.findByPk(req.user.sub, {
+    include: [
+      { model: City, as: 'city' },
+      { model: Class, as: 'class' },
+      { model: Role, as: 'role' }
+    ]
+  });
   res.status(200).json({
     success: true,
     message: "test user data",
