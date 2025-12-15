@@ -65,8 +65,16 @@ const Login = () => {
         
         // Après l'inscription, afficher un message de succès
         setError('');
-        alert('Inscription réussie ! Vérifiez votre email pour valider votre compte.');
+        alert('Inscription réussie ! Un email de vérification a été envoyé à votre adresse. Veuillez vérifier votre boîte de réception et cliquer sur le lien pour activer votre compte.');
         setIsLogin(true); // Basculer vers le formulaire de connexion
+        setFormData({
+          email: '',
+          password: '',
+          passwordConfirm: '',
+          username: '',
+          city: '',
+          class: ''
+        });
       }
     } catch (err) {
       setError(err.message || 'Une erreur est survenue');

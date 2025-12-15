@@ -10,6 +10,7 @@ import Chat from './pages/Chat';
 import Profil from './pages/Profil';
 import Administration from './pages/Administration';
 import Login from './pages/Login';
+import VerifyEmail from './pages/VerifyEmail';
 import './App.css';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           <Route
             path="/*"
             element={
