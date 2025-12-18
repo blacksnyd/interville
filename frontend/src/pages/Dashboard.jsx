@@ -1,69 +1,88 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Trophy, Users, MessageSquare, TrendingUp } from 'lucide-react';
+import { dashboardService } from '../services/dashboardService';
 import './Dashboard.css';
 
 const Dashboard = () => {
+  const [counters, setCounters] = useState({
+    activeChallenges: 0,
+    participants: 0,
+    comments: 0,
+    participationRate: 0,
+  });
+  const [latestChallenges, setLatestChallenges] = useState([]);
+  const [topParticipants, setTopParticipants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
   const kpis = [
-    { 
-      label: 'Challenges actifs', 
-      value: '24', 
+    {
+      label: 'Challenges actifs',
+      value: counters.activeChallenges,
       icon: Trophy,
-      color: 'purple'
+      color: 'purple',
     },
-    { 
-      label: 'Participants', 
-      value: '156', 
+    {
+      label: 'Participants',
+      value: counters.participants,
       icon: Users,
-      color: 'green'
+      color: 'green',
     },
-    { 
-      label: 'Commentaires', 
-      value: '342', 
+    {
+      label: 'Commentaires',
+      value: counters.comments,
       icon: MessageSquare,
-      color: 'purple'
+      color: 'purple',
     },
-    { 
-      label: 'Taux de participation', 
-      value: '89%', 
+    {
+      label: 'Taux de participation',
+      value: `${counters.participationRate}%`,
       icon: TrendingUp,
-      color: 'orange'
+      color: 'orange',
     },
   ];
 
-  const latestChallenges = [
-    {
-      id: 1,
-      category: 'CODE',
-      title: 'Créer un algorithme de tri optimal',
-      author: 'Alice Martin',
-      location: 'Marseille',
-      participants: 12,
-      comments: 8,
-      categoryColor: 'purple'
-    },
-    {
-      id: 2,
-      category: 'SPORT',
-      title: 'Course de 5km en moins de 30 min',
-      author: 'Thomas Dubois',
-      location: 'Aix-en-Provence',
-      participants: 23,
-      comments: 15,
-      categoryColor: 'blue'
-    },
-  ];
+  useEffect(() => {
+    const loadStats = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const data = await dashboardService.getStats();
+        setCounters(data.counters || {});
+        setLatestChallenges(data.latestChallenges || []);
+        setTopParticipants(data.topParticipants || []);
+      } catch (err) {
+        console.error('Erreur de chargement du dashboard:', err);
+        setError(err.message || 'Erreur lors du chargement des statistiques');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const topParticipants = [
-    { rank: 1, name: 'Lucas Bernard', location: 'Marseille', points: '1250 pts', rankColor: 'yellow' },
-    { rank: 2, name: 'Emma Rousseau', location: 'Nice', points: '1180 pts', rankColor: 'gray' },
-    { rank: 3, name: 'Hugo Petit', location: 'Aix-en-Provence', points: '1050 pts', rankColor: 'orange' },
-  ];
+    loadStats();
+  }, []);
 
   return (
     <div className="dashboard">
       <div className="page-header">
         <h1 className="page-title">Dashboard</h1>
       </div>
+
+      {error && (
+        <div
+          style={{
+            padding: '0.75rem',
+            marginBottom: '1rem',
+            backgroundColor: '#fee2e2',
+            color: '#dc2626',
+            borderRadius: '8px',
+            fontSize: '0.875rem',
+          }}
+        >
+          {error}
+        </div>
+      )}
 
       {/* KPIs Section */}
       <div className="kpis-grid">
@@ -91,34 +110,44 @@ const Dashboard = () => {
             <h2 className="section-title">Derniers challenges</h2>
             <Link to="/challenges" className="btn-link">Voir tout</Link>
           </div>
-          <div className="challenges-list">
-            {latestChallenges.map((challenge) => (
-              <Link 
-                key={challenge.id} 
-                to={`/challenges/${challenge.id}`}
-                className="challenge-card-small"
-              >
-                <div className={`challenge-tag challenge-tag-${challenge.categoryColor}`}>
-                  {challenge.category}
-                </div>
-                <h3 className="challenge-title-small">{challenge.title}</h3>
-                <div className="challenge-meta">
-                  <span>Par {challenge.author}</span>
-                  <span className="challenge-location">{challenge.location}</span>
-                </div>
-                <div className="challenge-stats">
-                  <span className="stat-item">
-                    <Users size={16} />
-                    {challenge.participants}
-                  </span>
-                  <span className="stat-item">
-                    <MessageSquare size={16} />
-                    {challenge.comments}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
+          {loading ? (
+            <div style={{ padding: '1rem', color: '#6b7280' }}>
+              Chargement des derniers challenges...
+            </div>
+          ) : latestChallenges.length === 0 ? (
+            <div style={{ padding: '1rem', color: '#6b7280' }}>
+              Aucun challenge pour le moment.
+            </div>
+          ) : (
+            <div className="challenges-list">
+              {latestChallenges.map((challenge) => (
+                <Link 
+                  key={challenge.id} 
+                  to={`/challenges/${challenge.id}`}
+                  className="challenge-card-small"
+                >
+                  <div className={`challenge-tag challenge-tag-purple`}>
+                    {challenge.category}
+                  </div>
+                  <h3 className="challenge-title-small">{challenge.title}</h3>
+                  <div className="challenge-meta">
+                    <span>Par {challenge.author}</span>
+                    <span className="challenge-location">{challenge.location}</span>
+                  </div>
+                  <div className="challenge-stats">
+                    <span className="stat-item">
+                      <Users size={16} />
+                      {challenge.participants}
+                    </span>
+                    <span className="stat-item">
+                      <MessageSquare size={16} />
+                      {challenge.comments}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Top Participants */}
@@ -126,20 +155,30 @@ const Dashboard = () => {
           <div className="section-header">
             <h2 className="section-title">Top Participants</h2>
           </div>
-          <div className="participants-list">
-            {topParticipants.map((participant) => (
-              <div key={participant.rank} className="participant-item">
-                <div className={`participant-rank rank-${participant.rankColor}`}>
-                  {participant.rank}
+          {loading ? (
+            <div style={{ padding: '1rem', color: '#6b7280' }}>
+              Chargement des top participants...
+            </div>
+          ) : topParticipants.length === 0 ? (
+            <div style={{ padding: '1rem', color: '#6b7280' }}>
+              Pas encore de participations.
+            </div>
+          ) : (
+            <div className="participants-list">
+              {topParticipants.map((participant, index) => (
+                <div key={participant.rank ?? index} className="participant-item">
+                  <div className={`participant-rank rank-yellow`}>
+                    {participant.rank}
+                  </div>
+                  <div className="participant-info">
+                    <div className="participant-name">{participant.name}</div>
+                    <div className="participant-location">{participant.location}</div>
+                  </div>
+                  <div className="participant-points">{participant.points}</div>
                 </div>
-                <div className="participant-info">
-                  <div className="participant-name">{participant.name}</div>
-                  <div className="participant-location">{participant.location}</div>
-                </div>
-                <div className="participant-points">{participant.points}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

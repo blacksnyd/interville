@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Mail, Lock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { citiesService } from '../services/citiesService';
+import { classesService } from '../services/classesService';
 import './Auth.css';
 
 const Login = () => {
@@ -18,6 +20,31 @@ const Login = () => {
     city: '',
     class: ''
   });
+  const [cities, setCities] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [loadingData, setLoadingData] = useState(false);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!isLogin) {
+        setLoadingData(true);
+        try {
+          const [citiesData, classesData] = await Promise.all([
+            citiesService.getAll(),
+            classesService.getAll()
+          ]);
+          setCities(citiesData);
+          setClasses(classesData);
+        } catch (err) {
+          console.error('Erreur lors du chargement des données:', err);
+          setError('Impossible de charger les villes et promotions');
+        } finally {
+          setLoadingData(false);
+        }
+      }
+    };
+    loadData();
+  }, [isLogin]);
 
   const handleChange = (e) => {
     setFormData({
@@ -189,12 +216,14 @@ const Login = () => {
                   value={formData.city}
                   onChange={handleChange}
                   required
+                  disabled={loadingData}
                 >
-                  <option value="">Sélectionner votre ville</option>
-                  <option value="2">Marseille</option>
-                  <option value="4">Nice</option>
-                  <option value="3">Aix-en-Provence</option>
-                  <option value="1">Paris</option>
+                  <option value="">{loadingData ? 'Chargement...' : 'Sélectionner votre ville'}</option>
+                  {cities.map((city) => (
+                    <option key={city.id} value={city.id}>
+                      {city.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -206,11 +235,14 @@ const Login = () => {
                   value={formData.class}
                   onChange={handleChange}
                   required
+                  disabled={loadingData}
                 >
-                  <option disabled>Sélectionner votre promotion</option>
-                  <option value="1">Promo 2024</option>
-                  <option value="2">Promo 2025</option>
-                  <option value="3">Promo 2026</option>
+                  <option value="">{loadingData ? 'Chargement...' : 'Sélectionner votre promotion'}</option>
+                  {classes.map((classItem) => (
+                    <option key={classItem.id} value={classItem.id}>
+                      {classItem.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 

@@ -10,5 +10,30 @@ export const API_ENDPOINTS = {
     PROTECTED: '/api/auth/protected',
     VERIFY_EMAIL: '/api/auth/verify-email',
   },
+  CITIES: {
+    ALL: '/api/cities/all',
+  },
+  CLASSES: {
+    ALL: '/api/classes/all',
+  },
+  USERS: {
+    PENDING: '/api/users/pending',
+    VALIDATE: '/api/users',
+  },
+  CHALLENGES: {
+    LIST: '/api/challenges',
+    MINE: '/api/challenges/mine',
+    PARTICIPATIONS: '/api/challenges/participations',
+    DETAIL: (id) => `/api/challenges/${id}`,
+    CREATE: '/api/challenges',
+    PARTICIPATE: (id) => `/api/challenges/${id}/participate`,
+    COMMENT: (id) => `/api/challenges/${id}/comments`,
+  },
+  DASHBOARD: {
+    STATS: '/api/dashboard/stats',
+  },
+  CHAT: {
+    MESSAGES: '/api/chat',
+  },
 };
 

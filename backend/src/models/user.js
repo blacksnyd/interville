@@ -22,6 +22,26 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'role_id',
         as: 'role'
       });
+
+      // Challenges créés par l'utilisateur
+      User.hasMany(models.Challenge, {
+        foreignKey: 'creator_id',
+        as: 'createdChallenges'
+      });
+
+      // Challenges auxquels l'utilisateur participe
+      User.belongsToMany(models.Challenge, {
+        through: models.ChallengeParticipation,
+        foreignKey: 'user_id',
+        otherKey: 'challenge_id',
+        as: 'participatingChallenges'
+      });
+
+      // Messages de chat envoyés par l'utilisateur
+      User.hasMany(models.ChatMessage, {
+        foreignKey: 'user_id',
+        as: 'chatMessages'
+      });
     }
   }
 

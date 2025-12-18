@@ -1,4 +1,4 @@
-const { User } = require("../models");
+const { User, City, Class } = require("../models");
 
 async function validationUser(id) {
   const user = await User.findByPk(id);
@@ -9,4 +9,19 @@ async function validationUser(id) {
   return user;
 }
 
-module.exports = { validationUser };
+async function getPendingUsers() {
+  const users = await User.findAll({
+    where: {
+      is_validated: false
+    },
+    include: [
+      { model: City, as: 'city' },
+      { model: Class, as: 'class' }
+    ],
+    order: [['created_at', 'DESC']]
+  });
+
+  return users;
+}
+
+module.exports = { validationUser, getPendingUsers };

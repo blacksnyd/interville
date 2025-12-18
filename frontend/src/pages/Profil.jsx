@@ -1,30 +1,42 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Calendar, Trophy, Award, MessageSquare, User, Lock, CheckCircle, XCircle, Mail } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { challengesService } from '../services/challengesService';
 import './Profil.css';
 
 const Profil = () => {
   const { user } = useAuth();
+  const [userChallenges, setUserChallenges] = useState([]);
+  const [participations, setParticipations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
   const handleEditProfile = () => {
     console.log('Modifier le profil');
   };
 
-  const userChallenges = [
-    {
-      id: 1,
-      title: 'Créer un algorithme de tri optimal',
-      participants: 12,
-      comments: 8,
-      category: 'CODE'
-    },
-    {
-      id: 2,
-      title: 'Développer une application mobile',
-      participants: 8,
-      comments: 5,
-      category: 'CODE'
-    },
-  ];
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const [myChallenges, myParticipations] = await Promise.all([
+          challengesService.getMyChallenges(),
+          challengesService.getMyParticipations(),
+        ]);
+        setUserChallenges(myChallenges);
+        setParticipations(myParticipations);
+      } catch (err) {
+        console.error('Erreur de chargement du profil:', err);
+        setError(err.message || 'Erreur lors du chargement de vos données');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   const badges = [
     { id: 1, name: 'Premier challenge' },
@@ -32,20 +44,13 @@ const Profil = () => {
     { id: 3, name: 'Expert CODE' },
   ];
 
-  const participations = [
-    {
-      id: 1,
-      title: 'Course de 5km en moins de 30 min',
-      author: 'Thomas Dubois',
-      category: 'SPORT'
-    },
-    {
-      id: 2,
-      title: 'Préparer un plat traditionnel',
-      author: 'Sophie Lefebvre',
-      category: 'CUISINE'
-    },
-  ];
+  const totalCreated = userChallenges.length;
+  const totalParticipations = participations.length;
+  const totalComments = userChallenges.reduce(
+    (sum, c) => sum + (c.comments || 0),
+    0
+  );
+  const points = totalCreated * 100 + totalParticipations * 20 + totalComments * 2;
 
   return (
     <div className="profil-page">
@@ -117,7 +122,7 @@ const Profil = () => {
               </div>
               <div className="user-detail-item">
                 <Trophy size={20} />
-                <span>1250 points</span>
+                <span>{points} points</span>
               </div>
             </div>
             <button
@@ -144,27 +149,42 @@ const Profil = () => {
           </div>
         </div>
         <div className='right-div'>
+          {error && (
+            <div
+              style={{
+                padding: '0.75rem',
+                marginBottom: '1rem',
+                backgroundColor: '#fee2e2',
+                color: '#dc2626',
+                borderRadius: '8px',
+                fontSize: '0.875rem',
+              }}
+            >
+              {error}
+            </div>
+          )}
+
           {/* Statistics Cards */}
           <div className="profil-stats">
             <div className="stat-card">
               <div className="stat-icon stat-icon-purple">
                 <Trophy size={24} />
               </div>
-              <div className="stat-value">5</div>
+              <div className="stat-value">{totalCreated}</div>
               <div className="stat-label">Challenges créés</div>
             </div>
             <div className="stat-card">
               <div className="stat-icon stat-icon-purple">
                 <Award size={24} />
               </div>
-              <div className="stat-value">18</div>
+              <div className="stat-value">{totalParticipations}</div>
               <div className="stat-label">Participations</div>
             </div>
             <div className="stat-card">
               <div className="stat-icon stat-icon-purple">
                 <MessageSquare size={24} />
               </div>
-              <div className="stat-value">42</div>
+              <div className="stat-value">{totalComments}</div>
               <div className="stat-label">Commentaires</div>
             </div>
           </div>
@@ -173,22 +193,36 @@ const Profil = () => {
           <div className="card">
             <h3 className="section-title">Mes challenges</h3>
             <div className="user-challenges-list">
-              {userChallenges.map((challenge) => (
-                <Link
-                  key={challenge.id}
-                  to={`/challenges/${challenge.id}`}
-                  className="user-challenge-item"
-                >
-                  <div className="user-challenge-info">
-                    <h4 className="user-challenge-title">{challenge.title}</h4>
-                    <div className="user-challenge-stats">
-                      <span>{challenge.participants} participants</span>
-                      <span>{challenge.comments} commentaires</span>
+              {loading ? (
+                <div style={{ padding: '1rem', color: '#6b7280' }}>
+                  Chargement de vos challenges...
+                </div>
+              ) : userChallenges.length === 0 ? (
+                <div style={{ padding: '1rem', color: '#6b7280' }}>
+                  Vous n&apos;avez pas encore créé de challenge
+                </div>
+              ) : (
+                userChallenges.map((challenge) => (
+                  <Link
+                    key={challenge.id}
+                    to={`/challenges/${challenge.id}`}
+                    className="user-challenge-item"
+                  >
+                    <div className="user-challenge-info">
+                      <h4 className="user-challenge-title">
+                        {challenge.title}
+                      </h4>
+                      <div className="user-challenge-stats">
+                        <span>{challenge.participants} participants</span>
+                        <span>{challenge.comments} commentaires</span>
+                      </div>
                     </div>
-                  </div>
-                  <span className="challenge-tag-small">{challenge.category}</span>
-                </Link>
-              ))}
+                    <span className="challenge-tag-small">
+                      {challenge.category}
+                    </span>
+                  </Link>
+                ))
+              )}
             </div>
           </div>
 
@@ -196,21 +230,37 @@ const Profil = () => {
           <div className="card">
             <h3 className="section-title">Mes participations</h3>
             <div className="participations-list">
-              {participations.map((participation) => (
-                <Link
-                  key={participation.id}
-                  to={`/challenges/${participation.id}`}
-                  className="participation-item"
-                >
-                  <div className="participation-info">
-                    <h4 className="participation-title">{participation.title}</h4>
-                    <div className="participation-author">Par {participation.author}</div>
-                  </div>
-                  <span className={`challenge-tag-small challenge-tag-${participation.category.toLowerCase()}`}>
-                    {participation.category}
-                  </span>
-                </Link>
-              ))}
+              {loading ? (
+                <div style={{ padding: '1rem', color: '#6b7280' }}>
+                  Chargement de vos participations...
+                </div>
+              ) : participations.length === 0 ? (
+                <div style={{ padding: '1rem', color: '#6b7280' }}>
+                  Vous ne participez à aucun challenge pour le moment
+                </div>
+              ) : (
+                participations.map((participation) => (
+                  <Link
+                    key={participation.id}
+                    to={`/challenges/${participation.id}`}
+                    className="participation-item"
+                  >
+                    <div className="participation-info">
+                      <h4 className="participation-title">
+                        {participation.title}
+                      </h4>
+                      <div className="participation-author">
+                        Par {participation.author}
+                      </div>
+                    </div>
+                    <span
+                      className={`challenge-tag-small challenge-tag-${participation.category.toLowerCase()}`}
+                    >
+                      {participation.category}
+                    </span>
+                  </Link>
+                ))
+              )}
             </div>
           </div>
         </div>
